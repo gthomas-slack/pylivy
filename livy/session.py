@@ -234,7 +234,7 @@ class LivySession:
             raise RuntimeError("statement had no text output")
         return deserialise_dataframe(output.text)
 
-    def read_sql(self, code: str, use_pandas: bool = True) -> Union[pandas.DataFrame, Dict]:
+    def read_sql(self, code: str, use_pandas: bool = True) -> Union[pandas.DataFrame, Dict[str, Any]]:
         """Evaluate a Spark SQL satatement and retrieve the result.
 
         :param code: The Spark SQL statement to evaluate.
