@@ -1,6 +1,6 @@
 import time
 import json
-from typing import Any, Dict, List, Iterable, Iterator, Optional
+from typing import Any, Dict, List, Iterable, Iterator, Optional, Union
 
 import pandas
 
@@ -234,10 +234,11 @@ class LivySession:
             raise RuntimeError("statement had no text output")
         return deserialise_dataframe(output.text)
 
-    def read_sql(self, code: str) -> pandas.DataFrame:
+    def read_sql(self, code: str, use_pandas: bool = True) -> Union[pandas.DataFrame, Dict]:
         """Evaluate a Spark SQL satatement and retrieve the result.
 
         :param code: The Spark SQL statement to evaluate.
+        :param use_pandas: Returns a pandas data frame if true, otherwise returns the raw livy response
         """
         if self.kind != SessionKind.SQL:
             raise ValueError("not a SQL session")
@@ -245,7 +246,10 @@ class LivySession:
         output.raise_for_status()
         if output.json is None:
             raise RuntimeError("statement had no JSON output")
-        return dataframe_from_json_output(output.json)
+        if use_pandas:
+            return dataframe_from_json_output(output.json)
+        else:
+            return output.json
 
     def _execute(self, code: str) -> Output:
         if self.session_id is None:
